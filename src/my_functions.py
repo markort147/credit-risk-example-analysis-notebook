@@ -1,29 +1,14 @@
 import pandas as pd
 import numpy as np
 import seaborn as sns
-from sklearn.preprocessing import OrdinalEncoder, OneHotEncoder, StandardScaler, RobustScaler
-from sklearn.pipeline import Pipeline
-from sklearn.compose import ColumnTransformer
-from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV, RandomizedSearchCV, StratifiedKFold, cross_validate
+from sklearn.model_selection import cross_validate
 from sklearn.model_selection._search import BaseSearchCV
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, BaggingClassifier, VotingClassifier
-from sklearn.metrics import accuracy_score, f1_score, classification_report, roc_curve, auc, recall_score, confusion_matrix, precision_score, precision_recall_curve
-from sklearn.utils import resample
-from sklearn.svm import SVC
+from sklearn.metrics import classification_report, roc_curve, auc, confusion_matrix, precision_recall_curve
 import matplotlib.pyplot as plt
-from scipy.stats import randint, uniform
-from sklearn.decomposition import PCA
-from imblearn.over_sampling import SMOTE
 import matplotlib.ticker as ticker
 from sklearn.base import BaseEstimator
 from typing import Union, Callable
-from joblib import dump, load
-from math import sqrt
-import matplotlib.cm as cm
-import xgboost as xgb
+from joblib import load
 
 
 def plot_confusion_matrix(y_true: np.ndarray, y_pred: np.ndarray):
@@ -168,3 +153,8 @@ def histplotNumericalFeatures(features: pd.DataFrame, target: Union[pd.Series, n
     plt.tight_layout()
 
     plt.show()
+
+def prepare_voting_classifier(estimators: list[BaseEstimator], estimators_labels: list[str], weigth_score: Callable[[np.ndarray, np.ndarray], float], x: np.ndarray, y_true: np.ndarray):
+    estimators_output = [(label, estimator) for label, estimator in zip(estimators_labels, estimators)]
+    weigths_output = [weigth_score(y_true, estimator.predict(x)) for estimator in estimators]
+    return estimators_output, weigths_output
